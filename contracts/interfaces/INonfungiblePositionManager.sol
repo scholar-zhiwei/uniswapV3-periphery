@@ -110,11 +110,11 @@ interface INonfungiblePositionManager is
 
     struct IncreaseLiquidityParams {
         uint256 tokenId;
-        uint256 amount0Desired;
-        uint256 amount1Desired;
-        uint256 amount0Min;
+        uint256 amount0Desired; //用户期望提供token0的数量
+        uint256 amount1Desired;//用户期望提供token1的数量
+        uint256 amount0Min;//用户提供的最小数额（滑点影响）
         uint256 amount1Min;
-        uint256 deadline;
+        uint256 deadline;//时间期限
     }
 
     /// @notice Increases the amount of liquidity in a position, with tokens paid by the `msg.sender`

@@ -306,6 +306,7 @@ contract NonfungiblePositionManager is
     }
 
     /// @inheritdoc INonfungiblePositionManager
+    //回收交易手续费
     function collect(CollectParams calldata params)
         external
         payable

@@ -87,14 +87,15 @@ contract SwapRouter is
     function exactInputInternal(
         uint256 amountIn,
         address recipient,
-        uint160 sqrtPriceLimitX96,
+        uint160 sqrtPriceLimitX96, //值为0
         SwapCallbackData memory data
     ) private returns (uint256 amountOut) {
         // allow swapping to the router address with address 0
         if (recipient == address(0)) recipient = address(this);
-
+        // 将 path 解码，获取头部的 tokenIn, tokenOut, fee
         (address tokenIn, address tokenOut, uint24 fee) = data.path.decodeFirstPool();
 
+        // 因为交易池只保存了 token x 的价格，这里我们需要知道输入的 token 是交易池 x token 还是 y token
         bool zeroForOne = tokenIn < tokenOut;
 
         (int256 amount0, int256 amount1) =
@@ -112,6 +113,7 @@ contract SwapRouter is
     }
 
     /// @inheritdoc ISwapRouter
+    //涉及单个交易对
     function exactInputSingle(ExactInputSingleParams calldata params)
         external
         payable
@@ -138,12 +140,14 @@ contract SwapRouter is
     {
         address payer = msg.sender; // msg.sender pays for the first hop
 
+        // 通过循环，遍历传入的路径，进行交易
         while (true) {
             bool hasMultiplePools = params.path.hasMultiplePools();
 
             // the outputs of prior swaps become the inputs to subsequent ones
             params.amountIn = exactInputInternal(
                 params.amountIn,
+                //如果是中间交易，由合约代为收取和支付中间代币
                 hasMultiplePools ? address(this) : params.recipient, // for intermediate swaps, this contract custodies
                 0,
                 SwapCallbackData({
@@ -153,15 +157,17 @@ contract SwapRouter is
             );
 
             // decide whether to continue or terminate
+            // 如果路径全部遍历完成，则退出循环，交易完成
             if (hasMultiplePools) {
                 payer = address(this); // at this point, the caller has paid
                 params.path = params.path.skipToken();
             } else {
+                //路径遍历完成
                 amountOut = params.amountIn;
                 break;
             }
         }
-
+        // 检查交易是否满足预期
         require(amountOut >= params.amountOutMinimum, 'Too little received');
     }
 
@@ -177,6 +183,7 @@ contract SwapRouter is
 
         (address tokenOut, address tokenIn, uint24 fee) = data.path.decodeFirstPool();
 
+        //交换的方向，从tokenIn到tokenOut为true，从tokenOut到tokenIn为false
         bool zeroForOne = tokenIn < tokenOut;
 
         (int256 amount0Delta, int256 amount1Delta) =
@@ -194,8 +201,8 @@ contract SwapRouter is
         (amountIn, amountOutReceived) = zeroForOne
             ? (uint256(amount0Delta), uint256(-amount1Delta))
             : (uint256(amount1Delta), uint256(-amount0Delta));
-        // it's technically possible to not receive the full output amount,
-        // so if no price limit has been specified, require this possibility away
+            // it's technically possible to not receive the full output amount,
+            // so if no price limit has been specified, require this possibility away
         if (sqrtPriceLimitX96 == 0) require(amountOutReceived == amountOut);
     }
 
@@ -221,6 +228,7 @@ contract SwapRouter is
     }
 
     /// @inheritdoc ISwapRouter
+    //用户输入 ytoken 求输入 xToken
     function exactOutput(ExactOutputParams calldata params)
         external
         payable
