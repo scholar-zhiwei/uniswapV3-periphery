@@ -27,8 +27,8 @@ interface ISwapRouter is IUniswapV3SwapCallback {
         bytes path; //交易的路径
         address recipient; //收款地址
         uint256 deadline; //交易的有效期
-        uint256 amountIn;//输入的token数 （输入的 token 地址就是 path 中的第一个地址）
-        uint256 amountOutMinimum;// 预期交易最少获得的 token 数（获得的 token 地址就是 path 中最后一个地址）
+        uint256 amountIn; //输入的token数 （输入的 token 地址就是 path 中的第一个地址）
+        uint256 amountOutMinimum; // 预期交易最少获得的 token 数（获得的 token 地址就是 path 中最后一个地址）
     }
 
     /// @notice Swaps `amountIn` of one token for as much as possible of another along the specified path

@@ -54,10 +54,10 @@ library LiquidityAmounts {
     /// @param amount1 The amount of token1 being sent in
     /// @return liquidity The maximum amount of liquidity received
     function getLiquidityForAmounts(
-        uint160 sqrtRatioX96,//此时的价格
-        uint160 sqrtRatioAX96,//lowerTick对应的价格
-        uint160 sqrtRatioBX96,//upperTick对应的价格
-        uint256 amount0,//用户输入token0的数量
+        uint160 sqrtRatioX96, //此时的价格
+        uint160 sqrtRatioAX96, //lowerTick对应的价格
+        uint160 sqrtRatioBX96, //upperTick对应的价格
+        uint256 amount0, //用户输入token0的数量
         uint256 amount1
     ) internal pure returns (uint128 liquidity) {
         //从小到大排序
@@ -65,7 +65,7 @@ library LiquidityAmounts {
         //现在的价格小于或等于用户设置的最低价格
         if (sqrtRatioX96 <= sqrtRatioAX96) {
             liquidity = getLiquidityForAmount0(sqrtRatioAX96, sqrtRatioBX96, amount0);
-        //现在的价格小于或等于用户设置的价格之间
+            //现在的价格小于或等于用户设置的价格之间
         } else if (sqrtRatioX96 < sqrtRatioBX96) {
             uint128 liquidity0 = getLiquidityForAmount0(sqrtRatioX96, sqrtRatioBX96, amount0);
             uint128 liquidity1 = getLiquidityForAmount1(sqrtRatioAX96, sqrtRatioX96, amount1);

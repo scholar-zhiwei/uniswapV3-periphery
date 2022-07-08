@@ -41,11 +41,11 @@ abstract contract LiquidityManagement is IUniswapV3MintCallback, PeripheryImmuta
         uint24 fee;
         address recipient;
         int24 tickLower; // 流动性的价格下限（以 token0 计价），这里传入的是 tick index
-        int24 tickUpper;// 流动性的价格上线（以 token0 计价），这里传入的是 tick index
+        int24 tickUpper; // 流动性的价格上线（以 token0 计价），这里传入的是 tick index
         uint256 amount0Desired;
         uint256 amount1Desired;
-        uint256 amount0Min;// 提供的 token0 下限数
-        uint256 amount1Min;// 提供的 token1 下限数
+        uint256 amount0Min; // 提供的 token0 下限数
+        uint256 amount1Min; // 提供的 token1 下限数
     }
 
     /// @notice Add liquidity to an initialized pool
@@ -65,7 +65,8 @@ abstract contract LiquidityManagement is IUniswapV3MintCallback, PeripheryImmuta
         pool = IUniswapV3Pool(PoolAddress.computeAddress(factory, poolKey));
 
         // compute the liquidity amount
-        {   //获取池子现在的价格
+        {
+            //获取池子现在的价格
             (uint160 sqrtPriceX96, , , , , , ) = pool.slot0();
             //将tick换算成价格
             uint160 sqrtRatioAX96 = TickMath.getSqrtRatioAtTick(params.tickLower);
@@ -80,7 +81,7 @@ abstract contract LiquidityManagement is IUniswapV3MintCallback, PeripheryImmuta
                 params.amount1Desired
             );
         }
-        
+
         (amount0, amount1) = pool.mint(
             params.recipient,
             params.tickLower,
